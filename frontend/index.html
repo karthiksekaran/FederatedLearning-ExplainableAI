@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FedMedAI - Federated Learning Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen text-gray-900">
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b border-gray-200">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center space-x-4">
+                    <div
+                        class="w-10 h-10 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">
+                        FM
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">FedMedAI</h1>
+                        <p class="text-xs text-gray-600">Privacy-Preserving Healthcare AI</p>
+                    </div>
+                </div>
+                <div class="flex space-x-2">
+                    <button
+                        class="nav-btn px-4 py-2 rounded-lg font-medium transition-all duration-300 bg-indigo-600 text-white"
+                        data-view="dashboard">
+                        Dashboard
+                    </button>
+                    <button
+                        class="nav-btn px-4 py-2 rounded-lg font-medium transition-all duration-300 text-gray-700 hover:bg-gray-100"
+                        data-view="prediction">
+                        Prediction
+                    </button>
+                    <button
+                        class="nav-btn px-4 py-2 rounded-lg font-medium transition-all duration-300 text-gray-700 hover:bg-gray-100"
+                        data-view="about">
+                        About
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <!-- Dashboard View -->
+        <div id="dashboard" class="view active space-y-8">
+
+            <!-- Hero Section -->
+            <div class="text-center space-y-4">
+                <h2 class="text-4xl md:text-5xl font-bold text-gray-900">
+                    Federated Learning for Private Medical Data
+                </h2>
+                <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                    Train AI models across multiple healthcare centers without sharing sensitive patient data
+                </p>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Privacy-Preserving</h3>
+                    <p class="text-sm text-gray-600">Data never leaves hospitals</p>
+                </div>
+
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">Explainable AI</h3>
+                    <p class="text-sm text-gray-600">SHAP-based interpretations</p>
+                </div>
+
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1">LLM-Powered</h3>
+                    <p class="text-sm text-gray-600">Clinical insights with Gemini</p>
+                </div>
+
+                <div
+                    class="bg-white p-6 rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-all duration-300">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-1" id="stat-clients">3 Hospitals</h3>
+                    <p class="text-sm text-gray-600">Collaborative learning</p>
+                </div>
+            </div>
+
+            <!-- Model Configuration -->
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                <h3 class="text-2xl font-bold text-gray-900 mb-6">Model Configuration</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4" id="model-info">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                        <p class="text-xs text-gray-600 uppercase tracking-wider mb-2">Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Training Progress -->
+            <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Training Progress</h3>
+                    <div class="flex items-center space-x-2 px-4 py-2 bg-gray-50 rounded-lg border border-gray-200"
+                        id="training-status">
+                        <div class="w-2 h-2 rounded-full bg-gray-400"></div>
+                        <span class="text-sm text-gray-700">Ready to Train</span>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Progress Bar -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm font-medium text-gray-700">Training Round</span>
+                            <span class="text-sm font-mono text-indigo-600" id="round-progress">0/20</span>
+                        </div>
+                        <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
+                            <div class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full transition-all duration-500"
+                                id="progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Metrics -->
+                    <div id="client-metrics" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Metrics will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Prediction View -->
+        <div id="prediction" class="view hidden space-y-8">
+            <div class="text-center space-y-4 mb-12">
+                <h2 class="text-4xl font-bold text-gray-900">
+                    Liver Disease Prediction
+                </h2>
+                <p class="text-lg text-gray-600">
+                    Enter patient data for AI-powered diagnosis with clinical interpretation
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Input Form -->
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Patient Information</h3>
+                    <form id="prediction-form" class="space-y-4">
+                        <div id="feature-inputs" class="space-y-4">
+                            <!-- Feature inputs will be generated dynamically -->
+                        </div>
+                        <button type="submit"
+                            class="w-full py-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg">
+                            Analyze Patient Data
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results -->
+                <div id="results-section" class="space-y-6 hidden">
+                    <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                        <div class="mb-6">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-1 flex items-center">
+                                <span id="result-icon" class="mr-3"></span>
+                                <span id="diagnosis-text">Diagnosis</span>
+                            </h3>
+                            <p class="text-gray-600" id="confidence-text">Confidence: -</p>
+                        </div>
+                        <div class="relative h-12 bg-gray-200 rounded-lg overflow-hidden">
+                            <div class="absolute inset-0 bg-gradient-to-r from-indigo-500 to-emerald-500 transition-all duration-700"
+                                id="probability-fill" style="width: 0%"></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="font-mono font-bold text-gray-900">Likelihood: <span
+                                        id="probability-value">-</span></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Feature Importance (SHAP)</h3>
+                    <div id="shap-chart" class="space-y-3">
+                        <!-- SHAP values will be inserted here -->
+                    </div>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Clinical Interpretation</h3>
+                    <div id="clinical-content" class="text-gray-700 leading-relaxed">
+                        <!-- LLM interpretation will be inserted here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- About View -->
+        <div id="about" class="view hidden space-y-8">
+            <div class="text-center space-y-4 mb-12">
+                <h2 class="text-4xl font-bold text-gray-900">About FedMedAI</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Federated Learning</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Implements federated learning using Flower framework. Multiple healthcare centers
+                        collaboratively train machine learning models without sharing sensitive patient data.
+                    </p>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Dataset</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Uses the UCI Liver Patient Dataset (ILPD) for binary classification of liver disease with
+                        biochemical markers and patient demographics.
+                    </p>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">Explainable AI</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Uses SHAP (SHapley Additive exPlanations) to provide transparent insights into model
+                        predictions.
+                    </p>
+                </div>
+
+                <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-200">
+                    <h3 class="text-xl font-bold text-gray-900 mb-4">LLM Integration</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Google Gemini provides natural language clinical interpretations for healthcare professionals.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-indigo-50 p-8 rounded-xl border border-indigo-200">
+                <h3 class="text-xl font-bold text-gray-900 mb-6 text-center">Technology Stack</h3>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <span
+                        class="px-4 py-2 bg-white border border-indigo-300 rounded-lg text-indigo-700 font-medium">Flower</span>
+                    <span
+                        class="px-4 py-2 bg-white border border-indigo-300 rounded-lg text-indigo-700 font-medium">PyTorch</span>
+                    <span
+                        class="px-4 py-2 bg-white border border-indigo-300 rounded-lg text-indigo-700 font-medium">SHAP</span>
+                    <span
+                        class="px-4 py-2 bg-white border border-indigo-300 rounded-lg text-indigo-700 font-medium">Google
+                        Gemini</span>
+                    <span
+                        class="px-4 py-2 bg-white border border-indigo-300 rounded-lg text-indigo-700 font-medium">Flask</span>
+                    <span
+                        class="px-4 py-2 bg-white border border-indigo-300 rounded-lg text-indigo-700 font-medium">Tailwind
+                        CSS</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-20 border-t border-gray-200 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center">
+            <p class="text-gray-600 mb-2">FedMedAI - Privacy-Preserving Federated Learning for Healthcare</p>
+            <p class="text-gray-500 text-sm">Built with Flower, PyTorch, SHAP & Google Gemini</p>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>

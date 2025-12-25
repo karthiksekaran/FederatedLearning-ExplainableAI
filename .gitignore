@@ -1,0 +1,26 @@
+*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.env
+venv/
+env/
+
+# Data and models
+data/*.pkl
+models/*.pth
+models/*.pt
+
+# Logs
+*.log
+/tmp/
+
+# IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Test outputs
+test_run.sh
