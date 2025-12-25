@@ -14,7 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadModelConfig();
     checkModelStatus();
     setupPredictionForm();
+    setupPredictionForm();
     startTrainingStatusPolling();
+    initializeShapTabs();
 });
 
 // Navigation
@@ -129,6 +131,32 @@ function setupPredictionForm() {
     });
 }
 
+// Initialize SHAP tabs
+function initializeShapTabs() {
+    const tabs = document.querySelectorAll('.shap-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active class from all tabs
+            tabs.forEach(t => {
+                t.classList.remove('active', 'border-indigo-500', 'text-indigo-600');
+                t.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            // Add active class to clicked tab
+            tab.classList.add('active', 'border-indigo-500', 'text-indigo-600');
+            tab.classList.remove('border-transparent', 'text-gray-500');
+
+            // Hide all views
+            const views = document.querySelectorAll('.shap-view');
+            views.forEach(v => v.classList.add('hidden'));
+
+            // Show target view
+            const targetId = tab.dataset.target;
+            document.getElementById(targetId).classList.remove('hidden');
+        });
+    });
+}
+
 // Make prediction
 async function makePrediction() {
     const formData = new FormData(document.getElementById('prediction-form'));
@@ -191,8 +219,13 @@ function displayPredictionResults(result) {
     probabilityFill.style.width = `${displayProb}%`;
     probabilityValue.textContent = `${displayProb.toFixed(1)}%`;
 
-    // Display SHAP values
+    // Display SHAP values (Bar Chart)
     displaySHAPValues(result.explanation.top_features);
+
+    // Display Plots
+    displayShapPlot('waterfall', result.waterfall_plot);
+    displayShapPlot('force', result.force_plot_img);
+    displayShapPlot('summary', result.summary_plot);
 
     // Display clinical interpretation
     const clinicalContent = document.getElementById('clinical-content');
@@ -450,5 +483,22 @@ async function fetchAPI(endpoint, options = {}) {
     } catch (error) {
         console.error(`API Error (${endpoint}):`, error);
         throw error;
+    }
+}
+
+// Display SHAP Plot Image
+function displayShapPlot(type, base64Data) {
+    const imgId = `${type}-plot-img`;
+    const loadingId = `${type}-loading`;
+    const imgElement = document.getElementById(imgId);
+    const loadingElement = document.getElementById(loadingId);
+
+    if (base64Data) {
+        imgElement.src = `data:image/png;base64,${base64Data}`;
+        imgElement.style.display = 'block';
+        loadingElement.style.display = 'none';
+    } else {
+        loadingElement.textContent = 'Plot unavailable';
+        imgElement.style.display = 'none';
     }
 }

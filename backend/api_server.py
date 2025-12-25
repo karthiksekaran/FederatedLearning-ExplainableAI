@@ -4,6 +4,8 @@ Provides endpoints for training monitoring and predictions
 """
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+import matplotlib
+matplotlib.use('Agg') # Set non-interactive backend
 import torch
 import numpy as np
 import pickle
@@ -109,6 +111,14 @@ def predict():
         explanation = explainer.explain_prediction(patient_array)
         force_plot_data = explainer.generate_force_plot_data(patient_array)
         
+        # Generate plot images
+        waterfall_plot = explainer.generate_waterfall_plot(patient_array, patient_values)
+        force_plot_img = explainer.generate_force_plot_image(patient_array)
+        
+        # Generate summary plot (this is global, but we include it for context)
+        # In production, we might want to cache this
+        summary_plot = explainer.generate_summary_plot()
+        
         # Generate clinical interpretation
         clinical_interpretation = llm_service.generate_clinical_interpretation(
             prediction=prediction,
@@ -123,7 +133,10 @@ def predict():
             'diagnosis': 'Liver Disease' if prediction == 1 else 'No Liver Disease',
             'confidence': float(probability * 100 if prediction == 1 else (1 - probability) * 100),
             'explanation': explanation,
-            'force_plot': force_plot_data,
+            'force_plot': force_plot_data, # Data for frontend D3/JS rendering if needed
+            'waterfall_plot': waterfall_plot,
+            'force_plot_img': force_plot_img,
+            'summary_plot': summary_plot,
             'clinical_interpretation': clinical_interpretation
         })
         

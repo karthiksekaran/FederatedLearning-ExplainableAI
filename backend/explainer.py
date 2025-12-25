@@ -102,6 +102,10 @@ class ModelExplainer:
             if isinstance(base_value, np.ndarray):
                 base_value = base_value[0]
             
+            # DeepExplainer returns (1, dim) for binary classification sometimes
+            if len(shap_vals.shape) > 1:
+                shap_vals = shap_vals.reshape(-1)
+                
             explanation = shap.Explanation(
                 values=shap_vals,
                 base_values=base_value,
@@ -125,6 +129,8 @@ class ModelExplainer:
             
         except Exception as e:
             print(f"Error generating waterfall plot: {e}")
+            import traceback
+            traceback.print_exc()
             return None
     
     def generate_force_plot_data(self, patient_data):
@@ -166,8 +172,95 @@ class ModelExplainer:
         return {
             'base_value': float(base_value),
             'features': features_data,
-            'prediction': float(base_value + sum(shap_vals))
         }
+    
+    def generate_force_plot_image(self, patient_data):
+        """
+        Generate SHAP force plot as image
+        """
+        try:
+            # Get SHAP values
+            patient_tensor = torch.FloatTensor(patient_data).unsqueeze(0)
+            shap_values = self.explainer.shap_values(patient_tensor)
+            
+            if isinstance(shap_values, list):
+                shap_vals = shap_values[0][0]
+            else:
+                shap_vals = shap_values[0]
+                
+            if len(shap_vals.shape) > 1:
+                shap_vals = shap_vals.reshape(-1)
+
+            base_value = self.explainer.expected_value
+            if isinstance(base_value, np.ndarray):
+                base_value = base_value[0]
+
+            plt.figure(figsize=(20, 3))
+            shap.force_plot(
+                base_value,
+                shap_vals,
+                patient_data,
+                feature_names=self.feature_names,
+                matplotlib=True,
+                show=False
+            )
+            
+            # Convert to base64
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+            buf.seek(0)
+            img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+            plt.close()
+            return img_base64
+        except Exception as e:
+            print(f"Error generating force plot: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+
+    def generate_summary_plot(self):
+        """
+        Generate global summary plot
+        """
+        try:
+            # We need background data + some test data ideally, but we only have background data stored in init usually.
+            # But deep explainer uses background data. 
+            # For summary plot we need a set of samples. 
+            # We'll use the background data passed in init if available, or load test data.
+            
+            # Since self.explainer.shap_values requires a tensor, and we want to explain a batch.
+            # We will load a small batch of test data for this summary.
+            
+            # Loading data inside here is a bit hacky but keeps it self-contained for now.
+            from data_utils import load_test_data
+            X_test, _ = load_test_data()
+            if X_test is None:
+                return None
+            
+            # Take a sample of 50-100 points
+            X_sample = X_test[:50]
+            X_tensor = torch.FloatTensor(X_sample)
+            
+            shap_output = self.explainer.shap_values(X_tensor)
+            
+            if isinstance(shap_output, list):
+                shap_values = shap_output[0]
+            else:
+                shap_values = shap_output
+                
+            plt.figure(figsize=(10, 8))
+            shap.summary_plot(shap_values, X_sample, feature_names=self.feature_names, show=False)
+            plt.tight_layout()
+            
+            buf = io.BytesIO()
+            plt.savefig(buf, format='png', dpi=100, bbox_inches='tight')
+            buf.seek(0)
+            img_base64 = base64.b64encode(buf.read()).decode('utf-8')
+            plt.close()
+            return img_base64
+        except Exception as e:
+            print(f"Error generating summary plot: {e}")
+            return None
 
 
 def create_explainer(model_path='models/global_model_final.pth', background_data=None, feature_names=None):
