@@ -248,6 +248,10 @@ class ModelExplainer:
             else:
                 shap_values = shap_output
                 
+            # If shap_values is (samples, features, 1), squeeze the last dimension
+            if len(shap_values.shape) == 3 and shap_values.shape[2] == 1:
+                shap_values = np.squeeze(shap_values, axis=2)
+                
             plt.figure(figsize=(10, 8))
             shap.summary_plot(shap_values, X_sample, feature_names=self.feature_names, show=False)
             plt.tight_layout()
