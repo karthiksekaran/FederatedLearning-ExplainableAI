@@ -266,6 +266,48 @@ class ModelExplainer:
             print(f"Error generating summary plot: {e}")
             return None
 
+    def generate_shap_text_explanation(self, prediction_result, feature_importance):
+        """
+        Generate a text explanation of how SHAP values worked for this prediction.
+        
+        Args:
+            prediction_result: Dictionary containing 'prediction', 'probability', 'base_value'
+            feature_importance: Dictionary of feature importance scores
+            
+        Returns:
+            String explanation
+        """
+        base_value = prediction_result.get('base_value', 0)
+        final_prob = prediction_result.get('probability', 0)
+        
+        # Sort features by absolute impact
+        sorted_features = sorted(
+            feature_importance.items(),
+            key=lambda x: abs(x[1]),
+            reverse=True
+        )
+        
+        # Calculate total positive and negative contributions
+        pos_sum = sum(v for _, v in sorted_features if v > 0)
+        neg_sum = sum(v for _, v in sorted_features if v < 0)
+        
+        text = "### How SHAP Prediction Works for this Sample\n\n"
+        text += f"1. **Base Expectation**: The average model output (base value) starts at **{base_value:.4f}**.\n"
+        
+        text += "2. **Feature Contributions**:\n"
+        for i, (name, val) in enumerate(sorted_features[:3]):
+            effect = "increases" if val > 0 else "decreases"
+            text += f"   - **{name}** {effect} the prediction by **{abs(val):.4f}**.\n"
+            
+        if len(sorted_features) > 3:
+            remaining = sum(abs(v) for _, v in sorted_features[3:])
+            text += f"   - Other features combined change the prediction by **{remaining:.4f}**.\n"
+            
+        text += f"\n3. **Result**: Starting from the base value, adding positive effects (+{pos_sum:.4f}) and subtracting negative effects ({neg_sum:.4f}) leads to the final score.\n"
+        text += f"   - This final score corresponds to a probability of **{final_prob:.4f}** ({(final_prob*100):.1f}%).\n"
+        
+        return text
+
 
 def create_explainer(model_path='models/global_model_final.pth', background_data=None, feature_names=None):
     """Factory function to create explainer"""
@@ -298,5 +340,14 @@ if __name__ == '__main__':
     # Test force plot data
     force_data = explainer.generate_force_plot_data(patient_data)
     print(f"✅ Force plot data generated: {len(force_data['features'])} features")
+    
+    # Test text explanation
+    prediction_result = {
+        'prediction': 1,
+        'probability': 0.85,
+        'base_value': explanation['base_value']
+    }
+    text_expl = explainer.generate_shap_text_explanation(prediction_result, explanation['feature_importance'])
+    print(f"\n✅ Generated Text Explanation:\n{text_expl}")
     
     print("\n✅ Explainability module test complete!")
