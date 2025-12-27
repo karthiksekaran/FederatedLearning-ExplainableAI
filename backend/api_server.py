@@ -126,6 +126,16 @@ def predict():
             feature_importance=explanation['feature_importance'],
             patient_data=patient_values
         )
+
+        # Generate SHAP text explanation
+        shap_text_explanation = explainer.generate_shap_text_explanation(
+            {
+                'prediction': prediction,
+                'probability': probability,
+                'base_value': explanation['base_value']
+            },
+            explanation['feature_importance']
+        )
         
         return jsonify({
             'prediction': int(prediction),
@@ -133,6 +143,7 @@ def predict():
             'diagnosis': 'Liver Disease' if prediction == 1 else 'No Liver Disease',
             'confidence': float(probability * 100 if prediction == 1 else (1 - probability) * 100),
             'explanation': explanation,
+            'shap_text_explanation': shap_text_explanation,
             'force_plot': force_plot_data, # Data for frontend D3/JS rendering if needed
             'waterfall_plot': waterfall_plot,
             'force_plot_img': force_plot_img,
